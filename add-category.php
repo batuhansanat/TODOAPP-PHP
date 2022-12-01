@@ -74,9 +74,9 @@ if(isset($_POST['submit'])){
                                     <div class="form-group">
                                         <label for="categoryName">Kategori Adı</label>
                                         <input type="text" class="form-control" name="categoryName" placeholder="Kategorinin adını girin">
-                                        <label for="categoryName">Kategori Açıklaması</label>
+                                        <label for="categoryName" class="mt-3">Kategori Açıklaması</label>
                                         <textarea name="categoryDesc" class="form-control" rows="3"></textarea>
-                                        <label for="categoryColor">Kategorinin Rengi</label>
+                                        <label for="categoryColor" class="mt-3">Kategorinin Rengi</label>
                                         <input type="color" class="form-control w-25" name="categoryColor">
                                     </div>
                                     </div>
