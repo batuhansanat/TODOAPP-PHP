@@ -22,16 +22,15 @@ if(isset($_POST['submit'])){
     else{
         $username = getPOST('username');
         $email = getPOST('email');
-        setSession('username',getPOST('username'));
-        setSession('email',getPOST('email'));
-        setSession('password',getPOST('password'));
+        $password = getPOST('password');
+
     }
 
     if(getPOST('password') != getPOST('password2')){
         setSession('error','Belirtilen şifreler aynı olmalıdır');
     }else{
         $register = $db->prepare('INSERT INTO users(username,password,email) VALUES (?,?,?)');
-        $register->execute([strip_tags(trim(getSession('username'))),getSession('password'),getSession('email')]);
+        $register->execute([strip_tags(trim($username)),$password,$email]);
         setSession('success','Başarıyla kayıt olundu! Hesabınıza giriş yapabilirsiniz.');
         goPage('login.php');
     }

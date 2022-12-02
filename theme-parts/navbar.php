@@ -9,7 +9,7 @@
             <a href="index.php" class="nav-link">Anasayfa</a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="list-category.php" class="nav-link">Görevler</a>
+            <a href="list-category.php" class="nav-link">Kategoriler</a>
         </li>
     </ul>
 
