@@ -50,6 +50,29 @@
                 </ul>
             </li>
             <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-clock"></i>
+                    <p>
+                        Yapılacaklar
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="add-category.php" class="nav-link">
+                            <i class="far fa-plus-square nav-icon"></i>
+                            <p>Yapılacak Ekle</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="list-category.php" class="nav-link">
+                            <i class="far fa-list-alt nav-icon"></i>
+                            <p>Listele / Düzenle</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
                 <a href="statistics.php" class="nav-link">
                     <i class="nav-icon fas fa-th"></i>
                     <p>
