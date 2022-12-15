@@ -1,7 +1,10 @@
 <?php
-session_start();
 require 'inc/func.php';
 require 'theme-parts/header.php';
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
 if(isset($_POST['submit'])){
     if(!getPOST('username') && !getPOST('email') && !getPOST('password') && !getPOST('password2')){
@@ -43,7 +46,7 @@ if(isset($_POST['submit'])){
 <div class="register-box">
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
-            <a href="../../index2.html" class="h1"><b>todo</b>APP</a>
+            <a href="#" class="h1"><b>todo</b>APP</a>
         </div>
         <div class="card-body">
             <p class="login-box-msg">Yeni bir üyelik oluştur</p>

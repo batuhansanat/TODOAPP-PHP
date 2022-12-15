@@ -1,7 +1,10 @@
 <?php
-session_start();
 require 'inc/func.php';
 require 'theme-parts/header.php';
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
 if(!getSession('username')) {
     setSession('error', 'Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
@@ -55,7 +58,7 @@ if(isset($_POST['submit'])){
             <div class="container-fluid">
                 <div class="row">
                     <!-- left column -->
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <!-- general form elements -->
                         <div class="card card-primary">
                             <div class="card-header">
@@ -84,7 +87,7 @@ if(isset($_POST['submit'])){
                                 <!-- /.card-body -->
 
                                 <div class="card-footer">
-                                    <button type="submit" name="submit" class="btn btn-success w-25">Ekle</button>
+                                    <button type="submit" name="submit" class="btn btn-success w-100">Ekle</button>
                                 </div>
                             </form>
                         </div>

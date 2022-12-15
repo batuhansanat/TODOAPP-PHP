@@ -10,20 +10,15 @@ if(!getSession('username')) {
     setSession('error', 'Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
     goPage('login.php');
 }else{
-    $categories = $db->prepare('SELECT * FROM category WHERE user_id=?');
-    $categories->execute([getSession('userid')]);
-    $cat = $categories->fetchAll(PDO::FETCH_ASSOC);
-    $catCount = $categories->rowCount();
+    $todos = $db->prepare('SELECT * FROM todos 
+         LEFT JOIN category c on c.categoryid = todos.cat_id                     
+         WHERE todos.user_id=?');
+    $todos->execute([getSession('userid')]);
+    $todo = $todos->fetchAll(PDO::FETCH_ASSOC);
+    $todoCount = $todos->rowCount();
+
 }
-/*---> KATEGORİ SİLME <----*/
-if(isset($_GET['q'])){
-    if(getGET('q') == 'delete'){
-        $deleteCat = $db->prepare('DELETE FROM category WHERE categoryid=? && user_id=?');
-        $deleteCat->execute([getGET('id'),getSession('userid')]);
-        goPage('list-category.php');
-    }
-}
-/*---> KATEGORİ SİLME <----*/
+
 
 ?>
 
@@ -33,7 +28,9 @@ if(isset($_GET['q'])){
     <?php require 'theme-parts/navbar.php'?>
     <!-- /.navbar -->
 
+
         <?php require 'theme-parts/sidebar.php'?>
+
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -45,10 +42,9 @@ if(isset($_GET['q'])){
                 <div class="row">
                     <div class="col-12 mt-5">
                         <div class="card">
-                            <div class="card-header bg-cyan">
-                                <h3 class="card-title text-bold">Kategorileriniz</h3>
-                                <a href="add-category.php" style="font-size: 0.8rem; padding: 2px" class="btn btn-success ml-3"> Yeni Ekle </a>
-
+                            <div class="card-header bg-gradient-orange">
+                                <h3 class="card-title text-bold text-center">Yapılacaklar Listeniz</h3>
+                                <a href="add-todo.php" style="font-size: 0.8rem; padding: 2px" class="btn btn-success ml-3"> Yeni Ekle </a>
 
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm" style="width: 150px;">
@@ -62,41 +58,58 @@ if(isset($_GET['q'])){
                                     </div>
                                 </div>
                             </div>
-
+                            <?php
+                            if(isset($_SESSION['error'])) echo '<div class="bg-danger text-white p-2 mb-4">'.$_SESSION['error'].'</div>';
+                            ?>
+                            <?php
+                            if(isset($_SESSION['success'])) echo '<div class="bg-success text-white p-2 mb-4">'.$_SESSION['success'].'</div>';
+                            ?>
                             <!-- /.card-header -->
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th></th>
-                                        <th>Kategori Adı</th>
+                                        <th>#</th>
+                                        <th>Kategori</th>
+                                        <th>Yapılacak Adı</th>
+                                        <th>Yapılacak Açıklama</th>
                                         <th>Oluşturma Tarihi</th>
-                                        <th>Açıklaması</th>
-                                        <th>İşlem</th>
+                                        <th>Bitiş Tarihi</th>
+                                        <th>Durum</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <?php for($i = 0; $i < $catCount; $i++): ?>
+                                    <?php global $todo; foreach ($todo as $key => $value):?>
                                     <tr>
 
-                                        <td style="background-color: <?= $cat[$i]['cat_color'] ?>;
+                                        <td style="background-color: <?= $value['todo_color'] ?>;
                                                 width: 60px;
                                                 -webkit-text-stroke: 1px black;
-                                                font-size:
-                                                1.6rem"
-                                            class="text-bold text-white"> </td>
-                                        <td><?= $cat[$i]['cat_name']?></td>
-                                        <td><?= $cat[$i]['cat_create_date']?></td>
-                                        <td style="max-width: 300px; overflow: auto"><?= $cat[$i]['cat_desc'] ?></td>
+                                                font-size: 1.6rem" class="text-bold text-white">
+                                        </td>
+                                        <td class="text-bold text-center text-maroon"><?= $value['cat_name'] ?></td>
+                                        <td><?= $value['todo_title']?></td>
+                                        <td style="max-width: 300px; overflow: auto"><?= $value['todo_desc'] ?></td>
+                                        <td><?= $value['todo_start_date']?></td>
+                                        <td><?= $value['todo_end_date']?></td>
+                                        <td>
+                                            <?php
+                                            if ($value['todo_status'] == 0):
+                                            ?>
+                                            <div class="bg-danger text-white text-center text-bold rounded">Biten</div>
+                                            <?php else: ?>
+                                            <div class="bg-success text-white text-center text-bold rounded">Devam Eden</div>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <div>
-                                            <a href="update-category.php?q=edit&id=<?= $cat[$i]['categoryid'] ?>" class="btn btn-success">Düzenle</a>
-                                            <a href="?q=delete&id=<?= $cat[$i]['categoryid'] ?>" class="btn btn-danger" >Sil</a>
+                                            <a href="update-todo.php?q=edit&id=<?= $value['todosid'] ?>" class="btn btn-primary float-right ml-1">Düzenle</a>
+                                            <a href="api.php?q=deleteTodo&id=<?= $value['todosid'] ?>" class="btn btn-outline-danger float-right">Sil</a>
                                             </div>
                                         </td>
 
                                     </tr>
-                                    <?php endfor; ?>
+                                    <?php endforeach; ?>
 
                                     </tbody>
                                 </table>
@@ -144,6 +157,16 @@ if(isset($_GET['q'])){
     $(function () {
         bsCustomFileInput.init();
     });
+
+    function addTodoMsg(){
+        Swal.fire(
+            'Başarılı!',
+            'Öğeyi başarıyla sildiniz.',
+            'success'
+        ).then(()=>{
+            window.location = 'list-todo.php';
+        })
+    }
 </script>
 </body>
 

@@ -1,10 +1,25 @@
 <?php
-session_start();
+
 require 'inc/func.php';
 require 'theme-parts/header.php';
+if(!isset($_SESSION))
+{
+    session_start();
+}
+
 if(!getSession('username')){
     setSession('error','Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
     goPage('login.php');
+}else{
+    global $db;
+    $q = $db->prepare('SELECT todo_status, COUNT(user_id) as toplamlar FROM todos
+                                WHERE user_id=?
+                                GROUP BY todo_status');
+    $q->execute([getSession('userid')]);
+    $todoInfo = $q->fetchAll(PDO::FETCH_ASSOC);
+
+    $q2 = $db->query('SELECT * FROM todos WHERE user_id='.getSession('userid'));
+    $fullTodos = $q2->fetchAll(PDO::FETCH_ASSOC);
 }
 
 
@@ -16,18 +31,8 @@ if(!getSession('username')){
     <!-- Navbar -->
 <?php require 'theme-parts/navbar.php'?>
     <!-- /.navbar -->
+    <?php require 'theme-parts/sidebar.php'?>
 
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a href="index3.html" class="brand-link">
-            <span class="brand-text font-weight-light">todoAPP</span>
-        </a>
-
-        <!-- Sidebar -->
-        <?php require 'theme-parts/sidebar.php'?>
-        <!-- /.sidebar -->
-    </aside>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -35,15 +40,7 @@ if(!getSession('username')){
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Starter Page</h1>
-                    </div><!-- /.col -->
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Starter Page</li>
-                        </ol>
-                    </div><!-- /.col -->
+
                 </div><!-- /.row -->
             </div><!-- /.container-fluid -->
         </div>
@@ -53,62 +50,43 @@ if(!getSession('username')){
         <div class="content">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
+                    <?php foreach ($todoInfo as $value): ?>
+                    <div class="col-md-6 col-sm-12 col-12">
+                        <div class="info-box bg-gradient-<?=getStatus($value['todo_status'])['color'] ?>">
+                            <span class="info-box-icon"><i class="<?=getStatus($value['todo_status'])['icon'] ?>"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text"><?= getStatus($value['todo_status'])['title'] ?></span>
+                                <span class="info-box-number text-bold text-xl"><?= $value['toplamlar'] ?></span>
 
-                                <p class="card-text">
-                                    Some quick example text to build on the card title and make up the bulk of the card's
-                                    content.
-                                </p>
-
-                                <a href="#" class="card-link">Card link</a>
-                                <a href="#" class="card-link">Another link</a>
+                                <span class="progress-description">
+                 <?= 'Toplam '.getStatus($value['todo_status'])['title'].' sayısı '.$value['toplamlar'].' adet.' ?>
+                </span>
                             </div>
+                            <!-- /.info-box-content -->
                         </div>
-
-                        <div class="card card-primary card-outline">
-                            <div class="card-body">
-                                <h5 class="card-title">Card title</h5>
-
-                                <p class="card-text">
-                                    Some quick example text to build on the card title and make up the bulk of the card's
-                                    content.
-                                </p>
-                                <a href="#" class="card-link">Card link</a>
-                                <a href="#" class="card-link">Another link</a>
-                            </div>
-                        </div><!-- /.card -->
+                        <!-- /.info-box -->
                     </div>
-                    <!-- /.col-md-6 -->
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="m-0">Featured</h5>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Special title treatment</h6>
+                    <?php endforeach; ?>
 
-                                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                                <a href="#" class="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
-
-                        <div class="card card-primary card-outline">
-                            <div class="card-header">
-                                <h5 class="m-0">Featured</h5>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Special title treatment</h6>
-
-                                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                                <a href="#" class="btn btn-primary">Go somewhere</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /.col-md-6 -->
                 </div>
+
+                <div class="row">
+                        <div class="col-md-12 col-sm-12 col-12">
+                            <div class="info-box bg-gradient-gray-dark">
+                                <span class="info-box-icon"><i class="fa fa-archive"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Toplam Yapılacaklar</span>
+                                    <span class="info-box-number text-bold text-xl"><?= $todoInfo[0]['toplamlar'] + $todoInfo[1]['toplamlar'] ?></span>
+
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                </div>
+                <hr class="my-5">
+
+
                 <!-- /.row -->
             </div><!-- /.container-fluid -->
         </div>
@@ -146,6 +124,12 @@ if(!getSession('username')){
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
+
+<script src="plugins/fullcalendar/main.min.js"></script>
+<script src="plugins/fullcalendar/locales/tr.js"></script>
+
+
+
 </body>
 
 

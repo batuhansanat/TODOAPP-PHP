@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,4 +14,8 @@
     <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="inc/css/adminlte.min.css">
+
+    <link rel="stylesheet" href="plugins/fullcalendar/main.min.css">
+
+
 </head>

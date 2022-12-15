@@ -1,14 +1,8 @@
 <?php
 require 'db.php';
 
-$errorMessage = '';
-
 function getPOST($post){
     return $_POST[$post];
-}
-
-function setPOST($post,$value){
-    $_POST[$post] = $value;
 }
 
 function getGET($get){
@@ -25,4 +19,20 @@ function setSession($session,$value){
 
 function goPage($page){
     header('Location:'.$page);
+}
+
+function getStatus($status){
+    if($status == 1){
+        return [
+            'title' => 'Devam Eden',
+            'color' => 'success',
+            'icon' => 'fa fa-check'
+        ];
+    }elseif($status == 0){
+        return [
+            'title' => 'Biten',
+            'color'=> 'danger',
+            'icon' => 'fa fa-trash'
+        ];
+    }
 }

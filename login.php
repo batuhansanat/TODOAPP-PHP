@@ -1,9 +1,13 @@
 <?php
-session_start();
+
 require 'inc/func.php';
 require 'theme-parts/header.php';
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
-if(isset($_SESSION['username'])){
+if(isset($_SESSION['username']) && getSession('userid')){
     goPage('index.php');
 }
 
@@ -28,7 +32,9 @@ if(isset($_POST['submit'])){
             $user = $usersAll->fetch(PDO::FETCH_ASSOC);
             setSession('username',$_POST['username']);
             setSession('password',$_POST['password']);
-            setSession('userid',$user['id']);
+            setSession('userid',$user['usersid']);
+            setSession('userAge',$user['user_age']);
+            setSession('profileDesc',$user['profile_desc']);
             goPage('index.php');
         }
         else{
@@ -45,7 +51,7 @@ if(isset($_POST['submit'])){
     <!-- /.login-logo -->
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
-            <a href="../../index2.html" class="h1"><b>todo</b>APP</a>
+            <a href="#" class="h1"><b>todo</b>APP</a>
         </div>
         <div class="card-body">
             <p class="login-box-msg">Giriş yapın</p>
