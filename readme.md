@@ -10,6 +10,8 @@ Patika PHP ile TODO APP Projesi
 - Kategori düzenleme
 - Kategori listeleme
 - Eklenen kategorilere renk tanımlama
+- Yapılacaklar listesine öğe ekleme
+- Yapılacaklar listesinden öğe silme
 
 Yeni özellikler geliştirildikçe eklenecek.
 

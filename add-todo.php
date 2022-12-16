@@ -1,11 +1,21 @@
 <?php
-session_start();
+global $db;
 require 'inc/func.php';
 require 'theme-parts/header.php';
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
 if(!getSession('username')) {
     setSession('error', 'Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
     goPage('login.php');
+}
+else{
+
+    $q = $db->prepare('SELECT cat_name,categoryid FROM category WHERE user_id=?');
+    $q->execute([getSession('userid')]);
+    $cat = $q->fetchAll(PDO::FETCH_ASSOC);
 }
 
 ?>
@@ -15,39 +25,22 @@ if(!getSession('username')) {
     <!-- Navbar -->
     <?php require 'theme-parts/navbar.php'?>
     <!-- /.navbar -->
-
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a href="index3.html" class="brand-link">
-            <span class="brand-text font-weight-light">todoAPP</span>
-        </a>
-
-        <!-- Sidebar -->
         <?php require 'theme-parts/sidebar.php'?>
-        <!-- /.sidebar -->
-    </aside>
+
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
 
-                </div>
-            </div><!-- /.container-fluid -->
-        </section>
 
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
                     <!-- left column -->
-                    <div class="col-md-8">
+                    <div class="col-md-12 mt-4">
                         <!-- general form elements -->
                         <div class="card card-primary">
-                            <div class="card-header">
+                            <div class="card-header bg-success">
                                 <h3 class="card-title">Yapılacak Ekle</h3>
                             </div>
                             <!-- /.card-header -->
@@ -67,7 +60,10 @@ if(!getSession('username')) {
                                         <textarea name="todoDesc" id="todoDesc" class="form-control" rows="3"></textarea>
                                         <label for="todoCat" class="mt-3">Yapılacaklar Kategorisi</label>
                                         <select class="form-control" name="todoCat" id="todoCat">
-                                            <option> -- Kategori Seçin --</option>
+                                            <?php global $cat;
+                                            foreach ($cat as $key => $value): ?>
+                                            <option value="<?= $value['categoryid'] ?>"> <?= $value['cat_name'] ?></option>
+                                            <?php endforeach; ?>
                                         </select>
                                         <label for="todoColor" class="mt-3">Yapılacaklar Rengi</label>
                                         <input type="color" class="form-control w-25" name="todoColor" id="todoColor">
@@ -76,19 +72,11 @@ if(!getSession('username')) {
                                                 <label for="todoStartDate" class="mt-3">Başlangıç Tarihi</label>
                                                 <input type="date" class="form-control" name="todoStartDate" id="todoStartDate">
                                             </div>
-                                            <div class="col md-4">
-                                                <label for="todoStartTime" class="mt-3">Başlangıç Saati</label>
-                                                <input type="time" class="form-control" name="todoStartTime" id="todoStartTime">
-                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <label for="todoEndDate" class="mt-3">Bitiş Tarihi</label>
                                                 <input type="date" class="form-control" name="todoEndDate" id="todoEndDate">
-                                            </div>
-                                            <div class="col md-4">
-                                                <label for="todoEndTime" class="mt-3">Bitiş Saati</label>
-                                                <input type="time" class="form-control" name="todoEndTime" id="todoEndTime">
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +85,7 @@ if(!getSession('username')) {
                                 <!-- /.card-body -->
 
                                 <div class="card-footer">
-                                    <button type="submit" name="submit" class="btn btn-success w-25">Ekle</button>
+                                    <button type="submit" name="submit" class="btn btn-success w-100">Ekle</button>
                                 </div>
                             </form>
                         </div>
@@ -151,9 +139,7 @@ if(!getSession('username')) {
         let todoCat = document.getElementById('todoCat').value;
         let todoColor = document.getElementById('todoColor').value;
         let todoStartDate = document.getElementById('todoStartDate').value;
-        let todoStartTime = document.getElementById('todoStartTime').value;
         let todoEndDate = document.getElementById('todoEndDate').value;
-        let todoEndTime = document.getElementById('todoEndTime').value;
 
         let formData = new FormData();
 
@@ -162,9 +148,7 @@ if(!getSession('username')) {
         formData.append('todoCat',todoCat);
         formData.append('todoColor',todoColor);
         formData.append('todoStartDate',todoStartDate);
-        formData.append('todoStartTime',todoStartTime);
         formData.append('todoEndDate',todoEndDate);
-        formData.append('todoEndTime',todoEndTime);
 
         axios.post('api.php?q=addTodo',formData).then(res => {
 
@@ -172,8 +156,9 @@ if(!getSession('username')) {
                 res.data.title,
                 res.data.message,
                 res.data.status
-            );
-            console.log(res)
+            ).then(() =>{
+                window.location = 'add-todo.php';
+            });
         }).catch(err => console.log(err));
 
         e.preventDefault();

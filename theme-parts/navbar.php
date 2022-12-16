@@ -11,6 +11,9 @@
         <li class="nav-item d-none d-sm-inline-block">
             <a href="list-category.php" class="nav-link">Kategoriler</a>
         </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="list-todo.php" class="nav-link">Yapılacaklar</a>
+        </li>
     </ul>
 
     <!-- Right navbar links -->

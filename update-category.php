@@ -1,8 +1,11 @@
 <?php
-session_start();
 require 'inc/func.php';
 require 'theme-parts/header.php';
 global $db;
+if(!isset($_SESSION))
+{
+    session_start();
+}
 if(!getSession('username')) {
     setSession('error', 'Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
     goPage('login.php');
@@ -10,7 +13,7 @@ if(!getSession('username')) {
 
 if(isset($_GET['q'])){
     if($_GET['q'] == 'edit'){
-        $list_cat = $db->prepare('SELECT * FROM category WHERE user_id=? && category.id=?');
+        $list_cat = $db->prepare('SELECT * FROM category WHERE user_id=? && category.categoryid=?');
         $list_cat->execute([getSession('userid'),getGET('id')]);
         $cat = $list_cat->fetch(PDO::FETCH_ASSOC);
     }
@@ -25,7 +28,7 @@ if(isset($_POST['submit'])){
         setSession('error','Kategorinin adı boş bırakılamaz!');
     }
     else{
-        $update_category= $db->prepare('UPDATE category SET cat_name=?,cat_color=?,cat_desc=? WHERE user_id=? && category.id=?');
+        $update_category= $db->prepare('UPDATE category SET cat_name=?,cat_color=?,cat_desc=? WHERE user_id=? && category.categoryid=?');
         $update_category->execute([getPOST('categoryName'),getPOST('categoryColor'),getPOST('categoryDesc'),getSession('userid'),$_GET['id']]);
         goPage('update-category.php?q=edit&id='.getGET('id'));
     }
@@ -38,17 +41,7 @@ if(isset($_POST['submit'])){
     <?php require 'theme-parts/navbar.php'?>
     <!-- /.navbar -->
 
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a href="index3.html" class="brand-link">
-            <span class="brand-text font-weight-light">todoAPP</span>
-        </a>
-
-        <!-- Sidebar -->
         <?php require 'theme-parts/sidebar.php'?>
-        <!-- /.sidebar -->
-    </aside>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">

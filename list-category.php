@@ -1,8 +1,11 @@
 <?php
-session_start();
 require 'inc/func.php';
 require 'theme-parts/header.php';
 global $db;
+if(!isset($_SESSION))
+{
+    session_start();
+}
 if(!getSession('username')) {
     setSession('error', 'Sayfayı görüntüleyebilmek için giriş yapmalısınız.');
     goPage('login.php');
@@ -15,7 +18,7 @@ if(!getSession('username')) {
 /*---> KATEGORİ SİLME <----*/
 if(isset($_GET['q'])){
     if(getGET('q') == 'delete'){
-        $deleteCat = $db->prepare('DELETE FROM category WHERE id=? && user_id=?');
+        $deleteCat = $db->prepare('DELETE FROM category WHERE categoryid=? && user_id=?');
         $deleteCat->execute([getGET('id'),getSession('userid')]);
         goPage('list-category.php');
     }
@@ -30,17 +33,7 @@ if(isset($_GET['q'])){
     <?php require 'theme-parts/navbar.php'?>
     <!-- /.navbar -->
 
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a href="index3.html" class="brand-link">
-            <span class="brand-text font-weight-light">todoAPP</span>
-        </a>
-
-        <!-- Sidebar -->
         <?php require 'theme-parts/sidebar.php'?>
-        <!-- /.sidebar -->
-    </aside>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -54,6 +47,8 @@ if(isset($_GET['q'])){
                         <div class="card">
                             <div class="card-header bg-cyan">
                                 <h3 class="card-title text-bold">Kategorileriniz</h3>
+                                <a href="add-category.php" style="font-size: 0.8rem; padding: 2px" class="btn btn-success ml-3"> Yeni Ekle </a>
+
 
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm" style="width: 150px;">
@@ -95,8 +90,8 @@ if(isset($_GET['q'])){
                                         <td style="max-width: 300px; overflow: auto"><?= $cat[$i]['cat_desc'] ?></td>
                                         <td>
                                             <div>
-                                            <a href="update-category.php?q=edit&id=<?= $cat[$i]['id'] ?>" class="btn btn-success">Düzenle</a>
-                                            <a href="?q=delete&id=<?= $cat[$i]['id'] ?>" class="btn btn-danger" >Sil</a>
+                                            <a href="update-category.php?q=edit&id=<?= $cat[$i]['categoryid'] ?>" class="btn btn-success">Düzenle</a>
+                                            <a href="?q=delete&id=<?= $cat[$i]['categoryid'] ?>" class="btn btn-danger" >Sil</a>
                                             </div>
                                         </td>
 

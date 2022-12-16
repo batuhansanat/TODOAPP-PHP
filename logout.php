@@ -1,6 +1,9 @@
 <?php
 require 'inc/func.php';
-session_start();
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
 if(isset($_GET['user'])){
 
