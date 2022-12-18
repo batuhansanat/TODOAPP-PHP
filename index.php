@@ -18,9 +18,13 @@ if(!getSession('username')){
     $q->execute([getSession('userid')]);
     $todoInfo = $q->fetchAll(PDO::FETCH_ASSOC);
 
-    $q2 = $db->prepare('SELECT * FROM todos WHERE user_id=? ORDER BY todo_end_date ASC');
+    $q2 = $db->prepare('SELECT * FROM todos
+                            LEFT JOIN category c on categoryid = todos.cat_id
+                            WHERE todos.user_id=? 
+                            ORDER BY todo_end_date ASC');
     $q2->execute([getSession('userid')]);
     $fullTodos = $q2->fetchAll(PDO::FETCH_ASSOC);
+    $todosCount = $q2->rowCount();
 }
 
 
@@ -67,28 +71,45 @@ if(!getSession('username')){
                         </div>
                         <!-- /.info-box -->
                     </div>
+
                     <?php endforeach; ?>
 
                 </div>
 
-                <div class="row">
-                        <div class="col-md-12 col-sm-12 col-12">
-                            <div class="info-box bg-gradient-gray-dark">
-                                <span class="info-box-icon"><i class="fa fa-archive"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Toplam Yapılacaklar</span>
-                                    <span class="info-box-number text-bold text-xl"><?= $todoInfo[0]['toplamlar'] + $todoInfo[1]['toplamlar'] ?></span>
 
-                                </div>
-                                <!-- /.info-box-content -->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-12">
+                        <div class="info-box bg-gradient-gray-dark">
+                            <span class="info-box-icon"><i class="fa fa-archive"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Toplam Yapılacaklar</span>
+                                <span class="info-box-number text-bold text-xl">
+                                            <?php
+                                            if(!array_key_exists('0',$todoInfo)){
+                                                $todoInfo[0]['toplamlar'] = 0;
+                                            }
+
+                                            if(!array_key_exists('1',$todoInfo)){
+                                                $todoInfo[1]['toplamlar'] = 0;
+                                            }
+
+                                            echo $todoInfo[0]['toplamlar'] + $todoInfo[1]['toplamlar'];
+                                            ?>
+                                        </span>
+
                             </div>
-                            <!-- /.info-box -->
+                            <!-- /.info-box-content -->
                         </div>
+                        <!-- /.info-box -->
+                    </div>
                 </div>
+
+
                 <hr class="my-5">
                 <div class="row">
                     <div class="col-md-12">
-                        <!-- SÜRESİ DEVAM EDENLER BİTENLER -->
+                        <!-- SÜRESİ DEVAM EDENLER -->
+                        <?php if($todosCount > 0): ?>
                         <?php foreach ($fullTodos as $key => $value): ?>
                         <?php if(date('Y-m-d') < $value['todo_end_date']): ?>
                             <?php
@@ -104,8 +125,9 @@ if(!getSession('username')){
                             ?>
                         <div class="timeline">
                             <div class="time-label">
-                                <span class="bg-gradient-dark"><?= $day.'.'.$month.'.'.$year ?></span>
-                                <span class="bg-gradient-blue">
+                                <span class="text-white shadow" style="background-color: <?= $value['cat_color'] ?>">Kategori: <?= $value['cat_name'] ?></span>
+                                <span class="bg-gradient-info shadow text-white"><?= $day.'.'.$month.'.'.$year ?></span>
+                                <span class="bg-gradient-blue shadow">
                                     <?php
                                     if($timeDiff->m > 0 && $timeDiff->y <= 0){
                                         echo 'Bitmesine '. $timeDiff->m.' ay '.$timeDiff->d.' gün kaldı';
@@ -124,13 +146,13 @@ if(!getSession('username')){
                                 <i class="fa fa-li" style="background-color: <?= $value['todo_color'] ?>"></i>
                                 <div class="timeline-item">
                                     <span class="time text-white"><i class="fas fa-clock"></i> <?= $endDate[1] ?></span>
-                                    <h3 class="timeline-header text-white" style="background-color: <?= $value['todo_color'] ?>"><b><?= $value['todo_title'] ?></b></h3>
+                                    <h3 class="timeline-header text-white bg-gradient-dark"><b><?= $value['todo_title'] ?></b></h3>
 
                                     <div class="timeline-body text-bold">
                                         <?= $value['todo_desc'] ?>
                                     </div>
                                     <div class="timeline-footer">
-                                        <a class="btn btn-dark" href="">Düzenle</a>
+                                        <a class="btn btn-success" href="update-todo.php?q=edit&id=<?= $value['todosid'] ?>">Düzenle</a>
                                     </div>
                                 </div>
                             </div>
@@ -138,9 +160,11 @@ if(!getSession('username')){
                         </div>
                         <?php endif; ?>
                         <?php endforeach; ?>
-                        <!-- SÜRESİ DEVAM EDENLER BİTENLER -->
+                        <?php endif; ?>
+                        <!-- SÜRESİ DEVAM EDENLER -->
 
                         <!-- SÜRESİ BİTENLER -->
+                        <?php if($todosCount > 0): ?>
                         <?php foreach ($fullTodos as $key => $value): ?>
                             <?php if(date('Y-m-d') >= $value['todo_end_date']): ?>
                                 <?php
@@ -156,6 +180,7 @@ if(!getSession('username')){
                                 ?>
                                 <div class="timeline">
                                     <div class="time-label">
+                                        <span class="text-white shadow" style="background-color: <?= $value['cat_color'] ?>">Kategori: <?= $value['cat_name'] ?></span>
                                         <span class="bg-gradient-red"><?= $day.'.'.$month.'.'.$year ?></span>
                                         <span class="bg-gradient-red">Süresi Bitti</span>
                                     </div>
@@ -163,13 +188,13 @@ if(!getSession('username')){
                                         <i class="fa fa-li" style="background-color: <?= $value['todo_color'] ?>"></i>
                                         <div class="timeline-item">
                                             <span class="time text-white"><i class="fas fa-clock"></i> <?= $endDate[1] ?></span>
-                                            <h3 class="timeline-header text-white" style="background-color: <?= $value['todo_color'] ?>"><b><?= $value['todo_title'] ?></b></h3>
+                                            <h3 class="timeline-header bg-gradient-dark text-white"><b><?= $value['todo_title'] ?></b></h3>
 
                                             <div class="timeline-body text-bold">
                                                 <?= $value['todo_desc'] ?>
                                             </div>
                                             <div class="timeline-footer">
-                                                <a class="btn btn-dark" href="">Düzenle</a>
+                                                <a class="btn btn-success" href="update-todo.php?q=edit&id=<?= $value['todosid'] ?>">Düzenle</a>
                                             </div>
                                         </div>
                                     </div>
@@ -177,6 +202,7 @@ if(!getSession('username')){
                                 </div>
                             <?php endif; ?>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                         <!-- SÜRESİ BİTENLER -->
                     </div>
                     <!-- /.col -->
