@@ -18,7 +18,8 @@ if(!getSession('username')){
     $q->execute([getSession('userid')]);
     $todoInfo = $q->fetchAll(PDO::FETCH_ASSOC);
 
-    $q2 = $db->query('SELECT * FROM todos WHERE user_id='.getSession('userid'));
+    $q2 = $db->prepare('SELECT * FROM todos WHERE user_id=? ORDER BY todo_end_date ASC');
+    $q2->execute([getSession('userid')]);
     $fullTodos = $q2->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -85,6 +86,101 @@ if(!getSession('username')){
                         </div>
                 </div>
                 <hr class="my-5">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- SÜRESİ DEVAM EDENLER BİTENLER -->
+                        <?php foreach ($fullTodos as $key => $value): ?>
+                        <?php if(date('Y-m-d') < $value['todo_end_date']): ?>
+                            <?php
+                            $endDate= explode(' ',$value['todo_end_date']);
+                            $endDateTime = explode('-',$endDate[0]);
+                            $day = $endDateTime[2];
+                            $month = $endDateTime[1];
+                            $year = $endDateTime[0];
+                            $todayDate = date('Y-m-d');
+                            $time = date_create($todayDate);
+                            $time2 = date_create($endDate[0]);
+                            $timeDiff = date_diff($time,$time2);
+                            ?>
+                        <div class="timeline">
+                            <div class="time-label">
+                                <span class="bg-gradient-dark"><?= $day.'.'.$month.'.'.$year ?></span>
+                                <span class="bg-gradient-blue">
+                                    <?php
+                                    if($timeDiff->m > 0 && $timeDiff->y <= 0){
+                                        echo 'Bitmesine '. $timeDiff->m.' ay '.$timeDiff->d.' gün kaldı';
+                                    }
+                                    elseif($timeDiff->m > 0 && $timeDiff->y > 0){
+                                        echo 'Bitmesine '.$timeDiff->y.' yıl '. $timeDiff->m.' ay '.$timeDiff->d.' gün kaldı';
+                                    }
+                                    else{
+                                        echo 'Bitmesine '.$timeDiff->d.' gün kaldı';
+                                    }
+                                    ?>
+
+                                </span>
+                            </div>
+                            <div>
+                                <i class="fa fa-li" style="background-color: <?= $value['todo_color'] ?>"></i>
+                                <div class="timeline-item">
+                                    <span class="time text-white"><i class="fas fa-clock"></i> <?= $endDate[1] ?></span>
+                                    <h3 class="timeline-header text-white" style="background-color: <?= $value['todo_color'] ?>"><b><?= $value['todo_title'] ?></b></h3>
+
+                                    <div class="timeline-body text-bold">
+                                        <?= $value['todo_desc'] ?>
+                                    </div>
+                                    <div class="timeline-footer">
+                                        <a class="btn btn-dark" href="">Düzenle</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                        <!-- SÜRESİ DEVAM EDENLER BİTENLER -->
+
+                        <!-- SÜRESİ BİTENLER -->
+                        <?php foreach ($fullTodos as $key => $value): ?>
+                            <?php if(date('Y-m-d') >= $value['todo_end_date']): ?>
+                                <?php
+                                $endDate= explode(' ',$value['todo_end_date']);
+                                $endDateTime = explode('-',$endDate[0]);
+                                $day = $endDateTime[2];
+                                $month = $endDateTime[1];
+                                $year = $endDateTime[0];
+                                $todayDate = date('Y-m-d');
+                                $time = date_create($todayDate);
+                                $time2 = date_create($endDate[0]);
+                                $timeDiff = date_diff($time,$time2);
+                                ?>
+                                <div class="timeline">
+                                    <div class="time-label">
+                                        <span class="bg-gradient-red"><?= $day.'.'.$month.'.'.$year ?></span>
+                                        <span class="bg-gradient-red">Süresi Bitti</span>
+                                    </div>
+                                    <div>
+                                        <i class="fa fa-li" style="background-color: <?= $value['todo_color'] ?>"></i>
+                                        <div class="timeline-item">
+                                            <span class="time text-white"><i class="fas fa-clock"></i> <?= $endDate[1] ?></span>
+                                            <h3 class="timeline-header text-white" style="background-color: <?= $value['todo_color'] ?>"><b><?= $value['todo_title'] ?></b></h3>
+
+                                            <div class="timeline-body text-bold">
+                                                <?= $value['todo_desc'] ?>
+                                            </div>
+                                            <div class="timeline-footer">
+                                                <a class="btn btn-dark" href="">Düzenle</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <!-- SÜRESİ BİTENLER -->
+                    </div>
+                    <!-- /.col -->
+                </div>
 
 
                 <!-- /.row -->
@@ -107,29 +203,12 @@ if(!getSession('username')){
     <!-- Main Footer -->
     <footer class="main-footer">
         <!-- To the right -->
-        <div class="float-right d-none d-sm-inline">
-            Anything you want
-        </div>
+        <div class="float-right d-none d-sm-inline">PLANLA VE YAP</div>
         <!-- Default to the left -->
-        <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+        <strong><a href="#">todoAPP</a> - BATUHAN SANAT</strong>
     </footer>
 </div>
 <!-- ./wrapper -->
-
-<!-- REQUIRED SCRIPTS -->
-
-<!-- jQuery -->
-<script src="plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
-
-<script src="plugins/fullcalendar/main.min.js"></script>
-<script src="plugins/fullcalendar/locales/tr.js"></script>
-
-
-
 </body>
 
 
