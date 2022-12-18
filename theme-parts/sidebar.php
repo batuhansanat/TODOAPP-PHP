@@ -15,13 +15,13 @@
                 <img src="upload/users/01112022/avatar.png" class="img-circle elevation-3" alt="User Image">
             </div>
             <div class="info">
-                <a href="profile.php?profile=<?= getSession('username') ?>" class="d-block text-bold"><?= getSession('username') ?> (<?php if(isset($_SESSION['userAge'])) echo getSession('userAge'); ?>)</a>
+                <a href="profile.php?profile=<?= getSession('username') ?>" class="d-block text-bold"><?= getSession('username') ?> <?php if(isset($_SESSION['userAge'])) echo '('.getSession('userAge').')'; ?></a>
             </div>
 
         </div>
-        <div class="info-box">
-            <p><?php if(isset($_SESSION['profileDesc'])) echo getSession('profileDesc'); ?></p>
-        </div>
+
+            <p><?php if(isset($_SESSION['profileDesc'])) echo '<div class="info-box">'.getSession('profileDesc').'</div>'; ?></p>
+
 
         <!-- SidebarSearch Form -->
         <div class="form-inline">
@@ -87,11 +87,10 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="statistics.php" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
+                    <a href="profile.php?profile=<?= getSession('username') ?>" class="nav-link">
+                        <i class="nav-icon fa fa-user"></i>
                         <p>
-                            İstatistikler
-                            <span class="right badge badge-danger">Yeni</span>
+                            Profilimi Düzenle
                         </p>
                     </a>
                 </li>
